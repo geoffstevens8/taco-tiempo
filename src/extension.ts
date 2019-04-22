@@ -1,27 +1,36 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import * as WebRequest from 'web-request';
+let myStatusBarItem: vscode.StatusBarItem;
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-		console.log('Congratulations, your extension "taco-tiempo" is now active!');
+	console.log('Taco Tiempo is active');
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('extension.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
+	// taco command
+	let disposable = vscode.commands.registerCommand('extension.taco', () => {
 
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World!');
+		(async function () {
+
+			// grab the taco json
+			var url = "http://taco-randomizer.herokuapp.com/random";
+			var taco = await WebRequest.json<any>(url);
+
+			// extract ingredients
+			var shell = taco.shell.name.toLowerCase();
+			var mixin = taco.mixin.name.toLowerCase();
+			var seasoning = taco.seasoning.name.toLowerCase();
+			var condiment = taco.condiment.name.toLowerCase();
+			var base = taco.base_layer.name.toLowerCase();
+
+			// create and display message
+			var message = "Add " + base + " with " + mixin + " and garnish it with " + condiment + ". Top it off with " + seasoning + " and wrap in " + shell + ".";
+			vscode.window.showInformationMessage(message, {modal: false}, 'Go to site');
+		
+		})();
+
 	});
 
 	context.subscriptions.push(disposable);
 }
 
-// this method is called when your extension is deactivated
 export function deactivate() {}
